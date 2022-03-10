@@ -20,9 +20,20 @@ GROUP BY libro.titulo_libro ORDER BY numero_prestamos DESC;
 
 --d. Si se cobrara una multa de $100 por cada día de atraso, mostrar cuánto debería pagar cada usuario que entregue el préstamo después de 7 días:
 
-SELECT isbn_libro, nombre_socio, apellido_socio, socio.rut_socio,
-(fecha_devolucion - fecha_prestamo - 7)*100 AS "monto_adeudado" FROM prestamo 
+--opcion1, muestra resultados de consulta de multa por prestamo
+
+SELECT prestamo.id_prestamo, socio.rut_socio,((fecha_devolucion - fecha_prestamo) - 7)*100 AS "monto_adeudado" FROM prestamo 
 INNER JOIN socio 
 ON prestamo.rut_socio=socio.rut_socio
-WHERE fecha_devolucion - fecha_prestamo > 0
-ORDER BY socio.rut_socio ASC;
+WHERE ((fecha_devolucion - fecha_prestamo) - 7) > 0
+ORDER BY prestamo.id_prestamo;
+
+
+--opcion2, muestra resultados de consulta de multa por socio (sumando la deuda de varios prestamos)
+
+SELECT nombre_socio, apellido_socio, socio.rut_socio,
+SUM(fecha_devolucion - fecha_prestamo - 7)*100 AS "monto_adeudado" FROM prestamo 
+INNER JOIN socio 
+ON prestamo.rut_socio=socio.rut_socio
+WHERE ((fecha_devolucion - fecha_prestamo) - 7) > 0
+GROUP BY socio.rut_socio;
